@@ -9,10 +9,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.*;
 
 import java.time.Duration;
 import java.util.Locale;
@@ -26,53 +23,57 @@ public class GWD {
 
 
     public static WebDriver getDriver() {
-        if (threadBrowserName.get() == null) {
-            threadBrowserName.set("chrome");
-        }
-        if (threadDriver.get() == null) {
-            String browserName = threadBrowserName.get();
+        if (threadBrowserName.get() != null) {
 
-            switch (browserName) {
-                case "chrome":
-                    System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
-                    WebDriverManager.chromedriver().setup();
-                    threadDriver.set(new ChromeDriver());
-                    break;
+            if (threadDriver.get() == null) {
+                String browserName = threadBrowserName.get();
+//                System.out.println("threadBrowserName:" + threadBrowserName.get());
 
-                case "firefox":
-                    System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
-                    WebDriverManager.firefoxdriver().setup();
-                    threadDriver.set(new FirefoxDriver());
-                    break;
+                switch (browserName) {
+                    case "chrome":
+                        System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
+                        WebDriverManager.chromedriver().setup();
+                        threadDriver.set(new ChromeDriver());
+                        break;
 
-                case "safari":
-                    WebDriverManager.safaridriver().setup();
-                    threadDriver.set(new SafariDriver());
-                    break;
+                    case "firefox":
+                        System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
+                        WebDriverManager.firefoxdriver().setup();
+                        threadDriver.set(new FirefoxDriver());
+                        break;
 
-                case "edge":
-                    WebDriverManager.edgedriver().setup();
-                    threadDriver.set(new EdgeDriver());
-                    break;
+                    case "safari":
+                        WebDriverManager.safaridriver().setup();
+                        threadDriver.set(new SafariDriver());
+                        break;
 
+                    case "edge":
+                        WebDriverManager.edgedriver().setup();
+                        threadDriver.set(new EdgeDriver());
+                        break;
 
+                }
             }
             Locale.setDefault(new Locale("EN"));
             System.setProperty("user.language", "EN");
 
             Logger.getLogger("").setLevel(Level.SEVERE);
-            //System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Error");
+            System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Error");
         }
 
         return threadDriver.get();
     }
-    @BeforeClass()
-    public void baslangicIslemleri() {
-        getDriver();
+
+    @BeforeClass
+    @Parameters("browser")
+    public void baslangicIslemleri(@Optional("chrome") String browser) {
+//        System.out.println("Browser Name:" + browser);
+        threadBrowserName.set(browser);
+
         getDriver().manage().window().maximize(); // max
         getDriver().manage().deleteAllCookies();  //
 
-        wait=new WebDriverWait(getDriver(), Duration.ofSeconds(30));
+        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
 
         getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30)); // sadece ana sayfa yüklenirken en başta
         getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); // bütün webElement için geçerli
@@ -80,20 +81,21 @@ public class GWD {
         login();
     }
 
+
     public void login() {
-        CollectiveLocators cl=new CollectiveLocators();
+        CollectiveLocators cl = new CollectiveLocators();
 
         cl.findAndClick("signIN");
-        cl.findAndSend("email","durgun.kemal@gmail.com");
-        cl.findAndSend("password","Kemal.Durgun");
+        cl.findAndSend("email", "durgun.kemal@gmail.com");
+        cl.findAndSend("password", "Kemal.Durgun");
         cl.findAndClick("signInButton");
-        cl.findAndWait("welcome","Welcome");
+        cl.findAndWait("welcome", "Welcome");
     }
 
     @AfterClass
     public static void quitDriver() {
         Bekle(2);
-        if (GWD.getDriver() != null) {
+        if (getDriver() != null) {
             GWD.getDriver().quit();
 
             WebDriver driver = threadDriver.get();

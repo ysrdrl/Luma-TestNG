@@ -8,10 +8,10 @@ import org.testng.annotations.Test;
 
 public class _02_ShoppingCart extends GWD {
 
-    CollectiveLocators cl = new CollectiveLocators();
-
     @Test
-    public void shoppingCartFunctionality() {
+    public static void shoppingCartFunctionality() {
+        CollectiveLocators cl = new CollectiveLocators();
+
         cl.findAndSend("searchBox", "Messenger Bug");
         cl.findAndClick("searchButton");
         cl.findAndWait("productItem", "Rival Field Messenger");

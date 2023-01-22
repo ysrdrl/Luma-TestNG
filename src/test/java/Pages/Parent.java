@@ -10,7 +10,7 @@ import org.testng.Assert;
 import java.time.Duration;
 import java.util.List;
 
-public class Parent {
+public class Parent extends GWD {
 
     public void sendKeysFunction(WebElement element, String value){
 
